@@ -35,6 +35,12 @@
             android:name=".Activity.ListEventActivity"
             android:exported="false" />
         <activity
+            android:name=".Activity.MapsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ListCategoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".Activity.DashboardActivity"
             android:exported="false" />
         <activity
