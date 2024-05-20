@@ -2,8 +2,9 @@ package com.fit2081.assignment3.Activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.metrics.Event;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +20,11 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.fit2081.assignment3.Data.Event;
+import com.fit2081.assignment3.Data.EventCategory;
 import com.fit2081.assignment3.EventViewModel;
 import com.fit2081.assignment3.FragmentListCategory;
 import com.fit2081.assignment3.R;
@@ -30,41 +35,46 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class DashboardActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private List<Event> eventList = new ArrayList<>();
+    private EditText editTextEventID;
     private EditText editTextEventName;
     private EditText editTextCategoryId;
     private EditText editTextTicketsAvailable;
     private Switch switchIsActive;
-    private String prevEventName;
-    private String prevCategoryId;
-    private String prevTicketsAvailable;
-    private boolean prevIsActive;
-
+    private FloatingActionButton fabSaveEvent;
     private EventViewModel eventViewModel;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.drawer_layout); // Make sure this layout is correct
+        setContentView(R.layout.drawer_layout);
+        // UI Binding
         drawerLayout = findViewById(R.id.drawer_layout);
+        editTextEventID = findViewById(R.id.editTextEventID2);
+        editTextEventName = findViewById(R.id.editTextEventName2);
+        editTextCategoryId = findViewById(R.id.editTextCategoryid2);
+        editTextCategoryId = findViewById(R.id.editTextCategoryid2);
+        editTextTicketsAvailable = findViewById(R.id.editTextTicketsAvailable2);
+        switchIsActive = findViewById(R.id.is_active_toggle);
+        fabSaveEvent = findViewById(R.id.fab);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.inflateMenu(R.menu.drawer_menu);
-//        navigationView.setNavigationItemSelectedListener(new MyNavigationListener(,drawerLayout));
+        navigationView.setNavigationItemSelectedListener(item -> {
+            handleNavigation(item);
+            return true;
+        });
+
+//        eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         FragmentListCategory fragmentListCategory = new FragmentListCategory();
 //        fragmentTransaction.replace(R.id.frameLayout, fragmentListCategory);
         fragmentTransaction.commit();
-
-        // Initialize all your views
-        editTextEventName = findViewById(R.id.editTextEventName2);
-        editTextCategoryId = findViewById(R.id.editTextCategoryid2);
-        editTextTicketsAvailable = findViewById(R.id.editTextTicketsAvailable2);
-        switchIsActive = findViewById(R.id.is_active_toggle);
 
         // Assuming app_bar_layout includes a Toolbar with id toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -74,122 +84,107 @@ public class DashboardActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        // Initialize the FloatingActionButton
-        FloatingActionButton fabSaveEvent = findViewById(R.id.fab);
-        fabSaveEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Perform the save operation
-                saveEvent();
+        fabSaveEvent.setOnClickListener(view -> {
+            // Perform the save operation
+            Log.e("DashboardActivity", "EventViewModel initialized: " + (eventViewModel != null));
 
-                // Show the Snackbar with UNDO action
-                Snackbar.make(view, "Event saved", Snackbar.LENGTH_LONG)
-                        .setAction("UNDO", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Perform the undo operation
-                                undoSaveEvent();
-                            }
-                        }).show();
-            }
+            Log.d("Activity", "on fab create event click");
+            saveEvent();
         });
     }
 
-    private void undoSaveEvent() {
-        // Restore the previous state from the member variables
-        SharedPreferences sharedPreferences = getSharedPreferences("EventDetails", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+    private void handleNavigation(@NonNull MenuItem item) {
+        int id = item.getItemId();
 
-        editor.putString("eventName", prevEventName);
-        editor.putString("categoryId", prevCategoryId);
-        editor.putString("ticketsAvailable", prevTicketsAvailable);
-        editor.putBoolean("isActive", prevIsActive);
+        if (id == R.id.nav_categories) {
+            Intent toListCategory = new Intent(DashboardActivity.this, ListCategoryActivity.class);
+            startActivity(toListCategory);
+            Log.d("Activity", "nav click ");
+        } else if (id == R.id.nav_add_category) {
+            Intent toAddCategory = new Intent(DashboardActivity.this, AddEventCategoryActivity.class);
+            startActivity(toAddCategory);
+            Log.d("Activity", "add category");
+        } else if (id == R.id.nav_events) {
+            Intent toListEvent = new Intent(DashboardActivity.this, ListEventActivity.class);
+            startActivity(toListEvent);
+            Log.d("Activity", "list event");
+        } else if (id == R.id.nav_logout) {
+            Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            Log.d("Activity", "logout");
+            finish();
+        }
 
-        // Apply the undo
-        editor.apply();
-
-        // Clear the UI elements
-        editTextEventName.setText(prevEventName);
-        editTextCategoryId.setText(prevCategoryId);
-        editTextTicketsAvailable.setText(prevTicketsAvailable);
-        switchIsActive.setChecked(prevIsActive);
-
-        // Show a message via Toast that the operation was undone
-        Toast.makeText(this, "Undo successful", Toast.LENGTH_LONG).show();
+        drawerLayout.closeDrawer(GravityCompat.START);
     }
-
-
 
     private void saveEvent() {
-        String eventName = editTextEventName.getText().toString();
-        String categoryId = editTextCategoryId.getText().toString();
-        String ticketsAvailableStr = editTextTicketsAvailable.getText().toString();
-        boolean isActive = switchIsActive.isChecked();
-
-        // Validate event name
-        if (!validateEventName(eventName)) {
-            Toast.makeText(this, "Invalid event name", Toast.LENGTH_SHORT).show();
-            return;
+        if(editTextEventName.getText().toString().isEmpty()
+                || editTextCategoryId.getText().toString().isEmpty()
+                || editTextTicketsAvailable.getText().toString().isEmpty() ){
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
         }
-
-        // Validate and correct tickets available
-        int ticketsAvailable = validateAndCorrectTickets(ticketsAvailableStr);
-        if (ticketsAvailable < 0) {
-            return;
+        else{
+            String eventId = generateEventId();
+            Log.d("Activity", eventId);
+            editTextEventID.setText(eventId);
+            // Validate and correct tickets available
+            String ticketsAvailableStr = editTextTicketsAvailable.getText().toString();
+            Log.d("Activity", ticketsAvailableStr);
+            String eventName = editTextEventName.getText().toString();
+            // Validate event name
+            if (!validateEventName(eventName)) {
+                Toast.makeText(this, "Invalid event name", Toast.LENGTH_SHORT).show();
+            }
+            Log.d("Activity", eventName);
+            int eventCount = Integer.parseInt(editTextTicketsAvailable.getText().toString());
+            Log.d("Activity", editTextTicketsAvailable.getText().toString());
+            String categoryId = editTextCategoryId.getText().toString();
+            Log.d("Activity", categoryId);
+            boolean isActive = switchIsActive.isChecked();
+            // Insert a new event
+            eventViewModel.validateCategory(categoryId).observe(this, new Observer<Boolean>() {
+                @Override
+                public void onChanged(Boolean isValid) {
+                    if (isValid) {
+                        // Category is valid, insert the event
+                        Event event = new Event(eventId, categoryId, eventName, eventCount, isActive);
+                        eventViewModel.insert(event);
+                        // Update selected category count +1
+//                        eventViewModel.getCategoryById(categoryId).observe(DashboardActivity.this, new Observer<EventCategory>() {
+//                            @Override
+//                            public void onChanged(EventCategory category) {
+//                                if (category != null) {
+//                                    category.setCategoryCount(category.getCategoryCount() + 1);
+//                                    eventViewModel.update(category);
+//                                }
+//                            }
+//                        });
+                    } else {
+                        // Category is not valid, show error message or handle the case accordingly
+                        Toast.makeText(DashboardActivity.this, "Invalid Category ID", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
-
-        // Check if the category exists
-        if (!categoryExists(categoryId)) {
-            Toast.makeText(this, "Category does not exist", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Save the event details
-        SharedPreferences sharedPreferences = getSharedPreferences("EventDetails", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("eventName", eventName);
-        editor.putString("categoryId", categoryId);
-        editor.putString("ticketsAvailable", String.valueOf(ticketsAvailable));
-        editor.putBoolean("isActive", isActive);
-        editor.apply();
-
-        // Update the event count for the category
-        updateEventCount(categoryId);
 
         // Success message
-        Toast.makeText(this, "Event saved: " + eventName + " to " + categoryId, Toast.LENGTH_LONG).show();
+//        Toast.makeText(this, "Event saved: " + "eventName" + " to " + categoryId, Toast.LENGTH_LONG).show();
     }
 
+    private String generateEventId() {
+        Random random = new Random();
+        // Generate two random uppercase letters
+        char randomChar1 = (char) ('E' + random.nextInt(26));
+        char randomChar2 = (char) ('E' + random.nextInt(26));
+        // Generate four random digits
+        int randomDigits = 1000 + random.nextInt(9000);
+        return "C" + randomChar1 + randomChar2 + "-" + randomDigits;
+    }
 
     private boolean validateEventName(String eventName) {
         return !eventName.matches("\\d+") && !eventName.contains("%");
-    }
-
-    private boolean categoryExists(String categoryId) {
-        SharedPreferences sharedPreferences = getSharedPreferences("CategoryDetails", MODE_PRIVATE);
-        Map<String, ?> allEntries = sharedPreferences.getAll();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            if (entry.getKey().equals("category_id_" + categoryId)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    private int validateAndCorrectTickets(String ticketsStr) {
-        try {
-            int tickets = Integer.parseInt(ticketsStr);
-            return Math.max(tickets, 0); // Ensure non-negative
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Invalid 'Tickets available'", Toast.LENGTH_SHORT).show();
-            return -1; // Indicate an error with -1
-        }
-    }
-
-    private void updateEventCount(String categoryId) {
-        // Increment the event count for the given category
-        SharedPreferences prefs = getSharedPreferences("CategoryCounts", MODE_PRIVATE);
-        int currentCount = prefs.getInt(categoryId, 0);
-        prefs.edit().putInt(categoryId, currentCount + 1).apply();
     }
 
 
@@ -217,7 +212,6 @@ public class DashboardActivity extends AppCompatActivity {
         }
         return true; // Indicate that the menu selection was handled
     }
-
 
     private void refreshDashboard() {
         finish();
@@ -256,7 +250,6 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
-
     private void deleteAllCategories() {
         eventViewModel.deleteAllCategories();
         Toast.makeText(DashboardActivity.this, "All Categories are deleted", Toast.LENGTH_SHORT).show();
@@ -267,48 +260,5 @@ public class DashboardActivity extends AppCompatActivity {
         Toast.makeText(DashboardActivity.this, "All Event are deleted", Toast.LENGTH_SHORT).show();
     }
 
-    private void logout() {
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
-
-    class MyNavigationListener implements NavigationView.OnNavigationItemSelectedListener {
-
-        private final AppCompatActivity activity;
-        private final DrawerLayout drawerLayout;
-
-        // Constructor to initialize activity and drawerLayout
-        public MyNavigationListener(AppCompatActivity activity, DrawerLayout drawerLayout) {
-            this.activity = activity;
-            this.drawerLayout = drawerLayout;
-        }
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            int id = item.getItemId();
-
-            if (id == R.id.nav_categories) {
-                Intent intent = new Intent(getApplicationContext(), ListCategoryActivity.class);
-                startActivity(intent);
-            } else if (id == R.id.nav_add_category) {
-                activity.startActivity(new Intent(activity, AddEventCategoryActivity.class));
-            } else if (id == R.id.nav_events) {
-                activity.startActivity(new Intent(activity, ListEventActivity.class));
-            } else if (id == R.id.nav_logout) {
-                logout();
-            }
-
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return true;
-        }
-
-        private void logout() {
-            // Implement your logout logic here
-            activity.startActivity(new Intent(activity, LoginActivity.class));
-            activity.finish();
-        }
-    }
 
 }
