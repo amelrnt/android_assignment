@@ -1,8 +1,6 @@
 package com.fit2081.assignment3.Activity;
 
 
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;

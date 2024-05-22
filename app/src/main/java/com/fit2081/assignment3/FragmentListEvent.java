@@ -1,7 +1,5 @@
 package com.fit2081.assignment3;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fit2081.assignment3.Data.Event;
-import com.fit2081.assignment3.Data.EventCategory;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 

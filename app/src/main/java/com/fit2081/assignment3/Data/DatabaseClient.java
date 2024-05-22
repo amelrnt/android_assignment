@@ -11,7 +11,7 @@ public class DatabaseClient {
 
     private DatabaseClient(Context context) {
         this.context = context;
-        appDatabase = Room.databaseBuilder(context, AppDatabase.class, "MyDatabase").build();
+        appDatabase = Room.databaseBuilder(context, AppDatabase.class, "EventDatabase").build();
     }
 
     public static synchronized DatabaseClient getInstance(Context context) {

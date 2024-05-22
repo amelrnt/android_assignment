@@ -1,13 +1,10 @@
 package com.fit2081.assignment3.Activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -30,11 +27,9 @@ import com.fit2081.assignment3.FragmentListCategory;
 import com.fit2081.assignment3.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class DashboardActivity extends AppCompatActivity {
@@ -69,6 +64,25 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
 //        eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
+        eventViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())).get(EventViewModel.class);
+
+        // Insert a new event category and event
+        EventCategory category = new EventCategory("Test12", "Cat1", 1, true, "Jakarta");
+        eventViewModel.insert(category);
+
+        // You can observe the categories to get the ID of the newly inserted category
+        eventViewModel.getAllCategories().observe(this, new Observer<List<EventCategory>>() {
+            @Override
+            public void onChanged(List<EventCategory> categories) {
+                for (EventCategory cat : categories) {
+                    if (cat.getName().equals("Music")) {
+                        Event event = new Event("E001", "Test12", "Event1", 2, true);
+                        eventViewModel.insert(event);
+                        break;
+                    }
+                }
+            }
+        });
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

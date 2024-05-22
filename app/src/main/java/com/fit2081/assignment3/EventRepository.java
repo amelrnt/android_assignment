@@ -19,6 +19,8 @@ public class EventRepository {
     private EventDao eventDao;
     private EventCategoryDao eventCategoryDao;
     private ExecutorService executorService;
+    private LiveData<List<Event>> allEvents;
+    private LiveData<List<EventCategory>> allCategories;
 
     public EventRepository(Context context) {
         AppDatabase db = DatabaseClient.getInstance(context).getAppDatabase();

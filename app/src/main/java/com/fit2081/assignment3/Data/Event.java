@@ -22,6 +22,14 @@ public class Event {
     private long timestamp;
 
     // Constructors, getters, and setters
+    public Event(int id, String eventId,String categoryId, String name, int ticketQty, boolean isActive) {
+        this.id = id;
+        this.eventId = eventId;
+        this.name = name;
+        this.categoryId = categoryId;
+        this.ticketQty = ticketQty;
+        this.isActive = isActive;
+    }
 
     public Event() {
     }

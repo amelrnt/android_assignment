@@ -17,9 +17,17 @@ public class EventCategory {
 
 
     // Constructors, getters, and setters
+    public EventCategory() {
+    }
 
-    public EventCategory() {}
-
+    public EventCategory(int id, String eventCategoryId, String name, int categoryCount, Boolean isActive, String locationName) {
+        this.id = id;
+        this.eventCategoryId = eventCategoryId;
+        this.name = name;
+        this.categoryCount = categoryCount;
+        this.isActive = isActive;
+        this.location_name = locationName;
+    }
 
     public EventCategory(String eventCategoryId, String name, int categoryCount, Boolean isActive, String locationName) {
         this.eventCategoryId = eventCategoryId;
