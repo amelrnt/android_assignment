@@ -10,7 +10,6 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -21,16 +20,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Assignment3"
         tools:targetApi="31">
-
-<!--        <receiver-->
-<!--            android:name=".SMSReceiver"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.provider.Telephony.SMS_RECEIVED" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyC3M0sTnICcjMO_IUa8UIx27tpWiM7ulCk"/>
+        <activity
+            android:name=".Activity.GoogleSearchActivity"
+            android:exported="false" />
+        <!-- <receiver -->
+        <!-- android:name=".SMSReceiver" -->
+        <!-- android:enabled="true" -->
+        <!-- android:exported="true"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.provider.Telephony.SMS_RECEIVED" /> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
         <activity
             android:name=".Activity.ListEventActivity"
             android:exported="false" />

@@ -73,7 +73,7 @@
         android:layout_marginEnd="20dp"
         android:ems="10"
         android:inputType="text"
-        android:text="Enter Category Name"
+        android:hint="Enter Category Name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView8" />
@@ -99,8 +99,8 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="24dp"
         android:ems="10"
-        android:inputType="text"
-        android:text="Enter Event count"
+        android:inputType="number"
+        android:hint="Enter Event count"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
@@ -140,7 +140,7 @@
         android:gravity="start"
         android:ems="10"
         android:inputType="text"
-        android:text="Enter Location"
+        android:hint="Enter Location"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/location_label" />

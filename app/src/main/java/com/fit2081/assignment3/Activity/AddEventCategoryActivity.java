@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -52,16 +53,23 @@ public class AddEventCategoryActivity extends AppCompatActivity {
     }
 
     private void saveCategory() {
-        String categoryId = generateCategoryId();
-        Log.d("generatedID", "categoryId");
-        editTextCategoryID.setText(categoryId);
-        String categoryName = editTextCategoryName.getText().toString();
-        int eventCount = Integer.parseInt(editTextEventCount.getText().toString());
-        boolean isActive = isActiveSwitch.isChecked();
-        String location = editTextLocation.getText().toString();
-        // Insert a new event
-        EventCategory category = new EventCategory(categoryId,categoryName,eventCount,isActive,location);
-        eventViewModel.insert(category);
+        if(editTextCategoryName.getText().toString().isEmpty()
+                || editTextEventCount.getText().toString().isEmpty()
+                || editTextLocation.getText().toString().isEmpty() ){
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            String categoryId = generateCategoryId();
+            Log.d("generatedID", categoryId);
+            editTextCategoryID.setText(categoryId);
+            String categoryName = editTextCategoryName.getText().toString();
+            int eventCount = Integer.parseInt(editTextEventCount.getText().toString());
+            boolean isActive = isActiveSwitch.isChecked();
+            String location = editTextLocation.getText().toString();
+            // Insert a new event
+            EventCategory category = new EventCategory(categoryId,categoryName,eventCount,isActive,location);
+            eventViewModel.insert(category);
+        }
     }
     private String generateCategoryId() {
         Random random = new Random();

@@ -3,9 +3,13 @@ package com.fit2081.assignment3.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -15,15 +19,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.fit2081.assignment3.CustomGestureListener;
 import com.fit2081.assignment3.Data.Event;
 import com.fit2081.assignment3.Data.EventCategory;
 import com.fit2081.assignment3.EventViewModel;
-import com.fit2081.assignment3.FragmentListCategory;
 import com.fit2081.assignment3.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -34,7 +36,6 @@ import java.util.Random;
 
 public class DashboardActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
-    private List<Event> eventList = new ArrayList<>();
     private EditText editTextEventID;
     private EditText editTextEventName;
     private EditText editTextCategoryId;
@@ -42,6 +43,9 @@ public class DashboardActivity extends AppCompatActivity {
     private Switch switchIsActive;
     private FloatingActionButton fabSaveEvent;
     private EventViewModel eventViewModel;
+
+    private FrameLayout gestureDetectorLayout;
+    private GestureDetector gestureDetector;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +59,7 @@ public class DashboardActivity extends AppCompatActivity {
         editTextTicketsAvailable = findViewById(R.id.editTextTicketsAvailable2);
         switchIsActive = findViewById(R.id.is_active_toggle);
         fabSaveEvent = findViewById(R.id.fab);
+        gestureDetectorLayout = findViewById(R.id.gestureDetector);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.inflateMenu(R.menu.drawer_menu);
@@ -84,11 +89,6 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        FragmentListCategory fragmentListCategory = new FragmentListCategory();
-//        fragmentTransaction.replace(R.id.frameLayout, fragmentListCategory);
-        fragmentTransaction.commit();
 
         // Assuming app_bar_layout includes a Toolbar with id toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -104,7 +104,27 @@ public class DashboardActivity extends AppCompatActivity {
 
             Log.d("Activity", "on fab create event click");
             saveEvent();
+//            startActivity(new Intent(DashboardActivity.this, MapsActivity.class));
         });
+
+        gestureDetectorLayout = findViewById(R.id.gestureDetector);
+
+        gestureDetector = new GestureDetector(this, new CustomGestureListener(this));
+
+        gestureDetectorLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+    }
+
+    public void clearAllFields() {
+        editTextEventName.setText("");
+        editTextCategoryId.setText("");
+        editTextTicketsAvailable.setText("");
+        switchIsActive.setChecked(false);
+        Toast.makeText(this, "Fields cleared", Toast.LENGTH_SHORT).show();
     }
 
     private void handleNavigation(@NonNull MenuItem item) {
@@ -126,14 +146,14 @@ public class DashboardActivity extends AppCompatActivity {
             Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-            Log.d("Activity", "logout");
+            Log.d("Activity", "maps");
             finish();
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
     }
 
-    private void saveEvent() {
+    public void saveEvent() {
         if(editTextEventName.getText().toString().isEmpty()
                 || editTextCategoryId.getText().toString().isEmpty()
                 || editTextTicketsAvailable.getText().toString().isEmpty() ){
@@ -157,6 +177,9 @@ public class DashboardActivity extends AppCompatActivity {
             String categoryId = editTextCategoryId.getText().toString();
             Log.d("Activity", categoryId);
             boolean isActive = switchIsActive.isChecked();
+
+//            Event event = new Event(eventId, categoryId, eventName, eventCount, isActive);
+//            eventViewModel.insert(event);
             // Insert a new event
             eventViewModel.validateCategory(categoryId).observe(this, new Observer<Boolean>() {
                 @Override
@@ -166,15 +189,16 @@ public class DashboardActivity extends AppCompatActivity {
                         Event event = new Event(eventId, categoryId, eventName, eventCount, isActive);
                         eventViewModel.insert(event);
                         // Update selected category count +1
-//                        eventViewModel.getCategoryById(categoryId).observe(DashboardActivity.this, new Observer<EventCategory>() {
-//                            @Override
-//                            public void onChanged(EventCategory category) {
-//                                if (category != null) {
-//                                    category.setCategoryCount(category.getCategoryCount() + 1);
-//                                    eventViewModel.update(category);
-//                                }
-//                            }
-//                        });
+                        eventViewModel.getCategoryById(categoryId).observe(DashboardActivity.this, new Observer<EventCategory>() {
+                            @Override
+                            public void onChanged(EventCategory category) {
+                                if (category != null) {
+                                    category.setCategoryCount(category.getCategoryCount() + 1);
+                                    eventViewModel.update(category);
+                                }
+                            }
+                        });
+                        Toast.makeText(DashboardActivity.this, "New Event Successfully Added", Toast.LENGTH_SHORT).show();
                     } else {
                         // Category is not valid, show error message or handle the case accordingly
                         Toast.makeText(DashboardActivity.this, "Invalid Category ID", Toast.LENGTH_SHORT).show();
