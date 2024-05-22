@@ -6,32 +6,28 @@ import androidx.lifecycle.LiveData;
 import com.fit2081.assignment3.Dao.EventCategoryDao;
 import com.fit2081.assignment3.Dao.EventDao;
 import com.fit2081.assignment3.Data.AppDatabase;
-import com.fit2081.assignment3.Data.DatabaseClient;
 import com.fit2081.assignment3.Data.Event;
 import com.fit2081.assignment3.Data.EventCategory;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class EventRepository {
 
     private EventDao eventDao;
     private EventCategoryDao eventCategoryDao;
-    private ExecutorService executorService;
     private LiveData<List<Event>> allEvents;
     private LiveData<List<EventCategory>> allCategories;
 
     public EventRepository(Context context) {
-        AppDatabase db = DatabaseClient.getInstance(context).getAppDatabase();
+        AppDatabase db = AppDatabase.getDatabase(context);
         eventDao = db.eventDao();
         eventCategoryDao = db.eventCategoryDao();
-        executorService = Executors.newSingleThreadExecutor();
     }
 
     // Event operations
     public void insertEvent(Event event) {
-        executorService.execute(() -> eventDao.insert(event));
+        AppDatabase.databaseWriteExecutor.execute(() -> eventDao.insert(event));
     }
 
     public LiveData<List<Event>> getAllEvents() {
@@ -43,16 +39,16 @@ public class EventRepository {
     }
 
     public void updateEvent(Event event) {
-        executorService.execute(() -> eventDao.update(event));
+        AppDatabase.databaseWriteExecutor.execute(() -> eventDao.update(event));
     }
 
     public void deleteEvent(Event event) {
-        executorService.execute(() -> eventDao.delete(event));
+        AppDatabase.databaseWriteExecutor.execute(() -> eventDao.delete(event));
     }
 
     // EventCategory operations
     public void insertCategory(EventCategory category) {
-        executorService.execute(() -> eventCategoryDao.insert(category));
+        AppDatabase.databaseWriteExecutor.execute(() -> eventCategoryDao.insert(category));
     }
 
     public LiveData<List<EventCategory>> getAllCategories() {
@@ -64,21 +60,21 @@ public class EventRepository {
     }
 
     public void updateCategory(EventCategory category) {
-        executorService.execute(() -> eventCategoryDao.update(category));
+        AppDatabase.databaseWriteExecutor.execute(() -> eventCategoryDao.update(category));
     }
 
     public void deleteCategory(EventCategory category) {
-        executorService.execute(() -> eventCategoryDao.delete(category));
+        AppDatabase.databaseWriteExecutor.execute(() -> eventCategoryDao.delete(category));
     }
 
     public void deleteAllCategories() {
-        executorService.execute(() -> {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
             eventCategoryDao.deleteAllEventCategories();
         });
     }
 
     public void deleteAllEvents() {
-        executorService.execute(() -> {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
             eventDao.deleteAllEvents();
         });
     }

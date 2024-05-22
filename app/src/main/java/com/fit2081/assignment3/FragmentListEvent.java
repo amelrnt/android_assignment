@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fit2081.assignment3.Adapter.EventAdapter;
 import com.fit2081.assignment3.Data.Event;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
 public class FragmentListEvent extends Fragment {
 
     private RecyclerView recyclerView;
-    private MyEventAdapter eventAdapter;
+    private EventAdapter eventAdapter;
     private List<Event> eventList = new ArrayList<>();
     private EventViewModel eventViewModel;
 
@@ -31,7 +32,9 @@ public class FragmentListEvent extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setHasFixedSize(true);
 
-        eventAdapter = new MyEventAdapter(eventList);
+//        loadCategoryFromRoom();
+
+        eventAdapter = new EventAdapter(eventList);
         recyclerView.setAdapter(eventAdapter);
 
         loadCategoryFromRoom();

@@ -23,7 +23,7 @@ public interface EventCategoryDao {
     void delete(EventCategory eventCategory);
 
     @Query("SELECT * FROM event_categories")
-    List<EventCategory> getAllEventCategories();
+    LiveData<List<EventCategory>> getAllEventCategories();
 
     @Query("DELETE FROM event_categories")
     void deleteAllEventCategories();

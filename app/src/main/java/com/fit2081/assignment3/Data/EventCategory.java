@@ -13,7 +13,7 @@ public class EventCategory {
 
     private int categoryCount;
     private Boolean isActive;
-    private String location_name;
+    private String locationName;
 
 
     // Constructors, getters, and setters
@@ -26,7 +26,7 @@ public class EventCategory {
         this.name = name;
         this.categoryCount = categoryCount;
         this.isActive = isActive;
-        this.location_name = locationName;
+        this.locationName = locationName;
     }
 
     public EventCategory(String eventCategoryId, String name, int categoryCount, Boolean isActive, String locationName) {
@@ -34,7 +34,7 @@ public class EventCategory {
         this.name = name;
         this.categoryCount = categoryCount;
         this.isActive = isActive;
-        this.location_name = locationName;
+        this.locationName = locationName;
     }
 
     public int getId() {
@@ -77,11 +77,11 @@ public class EventCategory {
         this.isActive = isActive;
     }
 
-    public String getLocation_name() {
-        return location_name;
+    public String getLocationName() {
+        return locationName;
     }
 
-    public void setLocation_name(String location_name) {
-        this.location_name = location_name;
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }

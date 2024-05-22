@@ -12,12 +12,13 @@
     import java.util.ArrayList;
     import java.util.List;
 
+    import com.fit2081.assignment3.Adapter.CategoryAdapter;
     import com.fit2081.assignment3.Data.EventCategory;
 
     public class FragmentListCategory extends Fragment {
 
         private RecyclerView recyclerView;
-        private MyCategoryAdapter categoryAdapter;
+        private CategoryAdapter categoryAdapter;
         private List<EventCategory> categoryList = new ArrayList<>();
         private EventViewModel eventViewModel;
 
@@ -29,10 +30,13 @@
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             recyclerView.setHasFixedSize(true);
 
-            categoryAdapter = new MyCategoryAdapter(categoryList);
+//            loadCategoryFromRoom();
+
+            categoryAdapter = new CategoryAdapter(categoryList);
             recyclerView.setAdapter(categoryAdapter);
 
 //            loadCategoriesFromPreferences();
+
             loadCategoryFromRoom();
 
             return view;

@@ -1,5 +1,6 @@
 package com.fit2081.assignment3.Dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -23,10 +24,10 @@ public interface EventDao {
     void delete(Event event);
 
     @Query("SELECT * FROM events")
-    List<Event> getAllEvents();
+    LiveData<List<Event>> getAllEvents();
 
     @Query("SELECT * FROM events WHERE categoryId = :categoryId")
-    List<Event> getEventsForCategory(int categoryId);
+    LiveData<List<Event>> getEventsForCategory(int categoryId);
 
     @Query("DELETE FROM events")
     void deleteAllEvents();
